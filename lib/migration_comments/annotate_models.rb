@@ -22,7 +22,7 @@ module MigrationComments
         lines = []
         info.each_line{|l| lines << l.chomp}
         column_regex = /^#\s\*\*([`\w|*]+)\s+/
-        len = lines.select{|l| l =~ column_regex}.map{|l| l.length}.max
+        len = lines.select{|l| l.starts_with? '# ------' }.first.length
         lines.each do |line|
           if line =~ /# Table name: |# table \+\w+\+ /
             line << " # #{table_comment}" if table_comment
@@ -36,7 +36,6 @@ module MigrationComments
             line << " " * (len - line.length)
             line << "| Comments"
           elsif line.starts_with?('# ------')
-            line << "-" * [len - line.length, 0].max
             line << "|"
             line << "-" * 25
           end
