@@ -22,21 +22,20 @@ module MigrationComments
         lines = []
         info.each_line{|l| lines << l.chomp}
         column_regex = /^#\s\*\*([`\w|*]+)\s+/
-        len = lines.select{|l| l.starts_with? '# ------' }.first.length
+        len = lines.map(&:length).max
         lines.each do |line|
           if line =~ /# Table name: |# table \+\w+\+ /
             line << " # #{table_comment}" if table_comment
           elsif line =~ column_regex
             column_name = $1.gsub(/[\*,`]/, '')
             comment = column_comments[column_name.to_sym]
-            line << " " * (len - line.length)
-            line << "|"
+            line << " " * (len - line.length) << '|'
             line << " #{comment}" if comment
           elsif line.starts_with?('# Name')
             line << " " * (len - line.length)
             line << "| Comments"
           elsif line.starts_with?('# ------')
-            line << "|"
+            line << "-" * (len - line.length) << '|'
             line << "-" * 25
           end
         end
